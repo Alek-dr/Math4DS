@@ -93,3 +93,47 @@ my_mode <- function(x){
 mx <- mean(M)
 hx <- median(M)
 dx <- my_mode(M)
+
+----------------------------------
+tables23 <- function(){
+  freq <- c(8,10,16,14,10,5,2)
+  wages <- cut(7,bins, right = FALSE)
+  df <- data.frame(table(wages))
+  df$Freq <- freq
+  df$Cum_freq <- cumsum(df$Freq)  
+  return(df)
+}
+
+df <- tables23()
+# Schaum's Outline of Theory and Problems of Statistics 3rd Edition by Murray R Spiegel, Larry J Stephens
+# problem 2.14
+
+# 1. Куммулятивное распределение частот (cummulative-distribution).
+# 2. Куммулятивное распределение (в процентах).
+# 3. Полигон накопленных частот (ogive).
+# 4. Полигон накопленных частот в процентах (percentage ogive).
+
+# 1,2
+Perc_cum_distr <- df$Cum_freq*100/sum(df$Freq)
+df$Perc_cum_distr <- Perc_cum_distr
+
+
+Perc_cum_distr <- c(0, Perc_cum_distr)
+x <- seq(250,320,10)
+tmp <- data.frame(x,c(0,df$Cum_freq))
+names(tmp)[1] <- "x"
+names(tmp)[2] <- "Cum_freq"
+
+# 2
+ggplot(data=tmp, aes(x=tmp$x,y=tmp$Cum_freq)) + 
+  geom_point() + 
+  geom_line() + 
+  scale_x_continuous(breaks = seq(start,end,by=b))+
+  labs(title="Куммулятивное распределение.", x="Wages", y="Cummulative frequency")
+# 3
+ggplot(data=data.frame(x, Perc_cum_distr), aes(x=x,y=Perc_cum_distr)) + 
+  geom_point() + 
+  geom_line() + 
+  scale_x_continuous(breaks = seq(start,end,by=b))+
+  labs(title="Куммулятивное распределение (в процентах).", x="Wages", y="Percentage Cummulative frequency")
+
