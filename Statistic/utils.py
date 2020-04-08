@@ -89,6 +89,14 @@ def table23():
     df = pd.DataFrame([8, 10, 16, 14, 10, 5, 2], columns=['Number of Emoyees'], index=get_intervals(start, end, b))
     df.index.name = "Wages"
     return df
+    
+def table21():
+    b = 2
+    start = 60
+    end = 74
+    df = pd.DataFrame([5,18,42,27,8], columns=['Frequency'], index=get_intervals(start,end,b,step=3))
+    df.index.name = "Height"
+    return df
 
 
 if __name__ == '__main__':
