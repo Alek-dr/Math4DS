@@ -82,6 +82,49 @@ def quantile_groups(df, n, freq_col, cum_freq=None, d=1e-3):
     return quantiles
 
 
+def boundaries(df) -> (List, List):
+    """
+    :param df: pd.DataFrame with interval index
+    :return: low and up boundaries
+    """
+    low = []
+    low.append(df.iloc[0].name.left - 0.5 * np.around(df.iloc[1].name.left - df.iloc[0].name.right, 2))
+    for i in range(1, df.shape[0]):
+        low.append(0.5 * (df.iloc[i].name.left + df.iloc[i - 1].name.right))
+    high = []
+    for i in range(df.shape[0] - 1):
+        high.append(0.5 * (df.iloc[i].name.right + df.iloc[i + 1].name.left))
+    n = df.shape[0] - 1
+    high.append(df.iloc[n].name.right + 0.5 * np.around(df.iloc[n].name.left - df.iloc[n - 1].name.right, 2))
+    return low, high
+
+
+def items_in_range(df, low, up, c, low_bnd, up_bnd, rint=True):
+    """
+    :param df: pd.DataFrame with Frequency column
+    :param low: start find interval
+    :param up: end find interval
+    :param c: interval size
+    :param low_bnd: column of df with low boundary
+    :param up_bnd: column of df with up boundary
+    :param rint: round to int if True
+    :return: number of items in interval
+    """
+    val = df.loc[(df[up_bnd] >= low) & (df[low_bnd] <= up)]
+    f = 0
+    for i, row in val.iterrows():
+        if row.low_bnd >= low and row.up_bnd <= up:
+            f += row.Frequency
+        elif row.low_bnd < low:
+
+            f += row.Frequency * (row.up_bnd - low) / c
+        else:
+            f += row.Frequency * (up - row.low_bnd) / c
+    if rint:
+        f = np.rint(f)
+    return f
+
+
 def table23():
     b = 9.99
     start = 250
@@ -89,20 +132,18 @@ def table23():
     df = pd.DataFrame([8, 10, 16, 14, 10, 5, 2], columns=['Number of Emoyees'], index=get_intervals(start, end, b))
     df.index.name = "Wages"
     return df
-    
+
+
 def table21():
     b = 2
     start = 60
     end = 74
-    df = pd.DataFrame([5,18,42,27,8], columns=['Frequency'], index=get_intervals(start,end,b,step=3))
+    df = pd.DataFrame([5, 18, 42, 27, 8], columns=['Frequency'], index=get_intervals(start, end, b, step=3))
     df.index.name = "Height"
     return df
 
 
 if __name__ == '__main__':
     df = table23()
-    freq_col = "Number of Emoyees"
-    cum_freq = None
-    n = 4  # на сколько частей делить выборку
-    Q = quantile_groups(df, n, freq_col)
-    print(Q)
+    low, up = boundaries(df)
+    print(low, up)
